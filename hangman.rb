@@ -43,17 +43,22 @@ class ComputerClass
     @board = Array.new(@secret_word.length, "_")
   end
   
+  # def guess
+#     begin
+#       current_guess = ("a".."z").to_a.sample
+#       raise GuessError.new("Already Chosen") if @guessed_letters.include?(current_guess)
+#       @guessed_letters << current_guess
+#       p current_guess
+#     rescue => error
+#       retry
+#     end
+#   end
   def guess
-    begin
-      current_guess = ("a".."z").to_a.sample
-      raise GuessError.new("Already Chosen") if @guessed_letters.include?(current_guess)
-      @guessed_letters << current_guess
-      p current_guess
-    rescue => error
-      retry
-    end
-  end
-  
+    current_guess = most_common_unused_letter
+    @guessed_letters << current_guess
+    current_guess
+  end 
+
   def word_length
     @secret_word.length
   end
@@ -87,7 +92,6 @@ class ComputerClass
     else
       sad_update_dictionary(response)
     end
-    puts @remaining_words
   end
   
   private
@@ -110,6 +114,21 @@ class ComputerClass
     end
   end
   
+  def most_common_unused_letter
+    letter_occurrences = count_remaining_letters
+    
+    letter_occurrences.max_by {|key, value| value}[0]
+  end
+  
+  def count_remaining_letters
+    letter_occurrences = Hash.new(0)
+    @remaining_words.each do |word|
+      word.each_char do |char|
+        letter_occurrences[char] += 1 unless @guessed_letters.include?(char)
+      end
+    end
+    letter_occurrences
+  end
       
 end
 
@@ -126,7 +145,6 @@ class HumanClass
   def choose_secret_word
     puts "Enter length of secret word"
     @word_length = gets.chomp.to_i
-    #@found_letters = Array.new(@word_length)
   end
   
   def receive_secret_length(length)
@@ -148,7 +166,6 @@ class HumanClass
   
   def solved?
     @winning_spots.length == @word_length
-    #!@found_letters.any? {|letter| letter == nil}
   end
   
   def handle_guess_response(response)
@@ -165,10 +182,12 @@ class HumanClass
   end
   
   def secret_word
-    @winning_spots.map do |spot| 
-      spot[0]
-    end.join("")
-  end
+    assembled_word = []
+    @winning_spots.each do |arr|
+      assembled_word[arr[1]] = arr[0]
+    end
+    assembled_word.join("")
+  end  
   
   private
   
