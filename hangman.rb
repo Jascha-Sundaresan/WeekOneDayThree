@@ -7,7 +7,7 @@ class HangMan
   
   def play
     @checking_player.choose_secret_word
-    @length = @guessing_player.receive_secret_length(@checking_player.word_length)
+    @guessing_player.receive_secret_length(@checking_player.word_length)
     until solved?
       current_guess = @guessing_player.guess
       response = @checking_player.check_guess(current_guess)
@@ -31,11 +31,10 @@ class ComputerClass
   def initialize
     @remaining_words = import_dictionary
     @guessed_letters = []
-
   end
   
   def import_dictionary
-     File.readlines('dictionary.txt').map(&:chomp) 
+    File.readlines('dictionary.txt').map(&:chomp) 
   end
   
   def choose_secret_word
@@ -43,16 +42,6 @@ class ComputerClass
     @board = Array.new(@secret_word.length, "_")
   end
   
-  # def guess
-#     begin
-#       current_guess = ("a".."z").to_a.sample
-#       raise GuessError.new("Already Chosen") if @guessed_letters.include?(current_guess)
-#       @guessed_letters << current_guess
-#       p current_guess
-#     rescue => error
-#       retry
-#     end
-#   end
   def guess
     current_guess = most_common_unused_letter
     @guessed_letters << current_guess
@@ -117,7 +106,7 @@ class ComputerClass
   def most_common_unused_letter
     letter_occurrences = count_remaining_letters
     
-    letter_occurrences.max_by {|key, value| value}[0]
+    letter_occurrences.max_by { |key, value| value }[0]
   end
   
   def count_remaining_letters
@@ -201,12 +190,12 @@ class HumanClass
   end
   
   def ask_position(guess)
-     puts "Ooh! I found one!  Where does it go?"
+    puts "Ooh! I found one!  Where does it go?"
     begin
       input = gets.chomp.to_i
       raise InputError.new("Not a valid input") unless valid_location?(input)
        @winning_spots << [guess, input]
-      puts "Are there any more occurences?(Y/N)"
+      puts "Are there any more occurences?(Y/N)" if !solved?
       if gets.chomp.downcase == "y"
         ask_position(guess)
       end
@@ -226,12 +215,7 @@ class HumanClass
       group[1] == location
     end
   end
-  
-    
 end
-
-
-
 
 player2 = HumanClass.new
 player1 = ComputerClass.new
