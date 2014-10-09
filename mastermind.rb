@@ -1,4 +1,3 @@
-
 class Code
   
   attr_accessor :peg_str
@@ -6,12 +5,17 @@ class Code
   
   def initialize(peg_str)
     @peg_str = peg_str
-   end
+  end
   
   def self.generate_random
     peg_str = self::OPTIONS.shuffle[0..3]
-    return Code.new(peg_str)
+    Code.new(peg_str)
   end
+  
+  def check_code(peg, idx)
+    self.peg_str.include?(peg) && peg != self.peg_str[idx]
+  end
+  
   
 end
 
@@ -48,7 +52,6 @@ class Game
     @corr_color_and_pos == 4
   end
   
-  
   def get_user_input
     begin
       print "Enter letters: "
@@ -68,22 +71,19 @@ class Game
       puts peg
       puts idx
       @corr_color_and_pos += 1 if peg == @correct_code.peg_str[idx]
-      corr_color += 1 if @correct_code.peg_str.include?(peg) && peg != @correct_code.peg_str[idx]
+      corr_color += 1 if @correct_code.check_code(peg, idx)
     end
     puts "You have #{@corr_color_and_pos} in exactly the right place."
     puts "You have #{corr_color} that are the right color but in the wrong place."
   end
   
-
+  
   def validate_input?(input)
     return false if input.length != 4
     input.all? { |idx| Code::OPTIONS.include?(idx) }
   end
-      
 end
 
 meow = Code::generate_random
- 
 testgame = Game.new
-
 testgame.play
